@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+    <link rel="stylesheet" href="../style/style.css">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Date and Holiday Calculator</title>
+</head>
+<body>
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab(0)">Розрахунок дат</div>
+        <div class="tab" onclick="switchTab(1)">Свята</div>
+    </div>
+
+    <div id="tab-content-0" class="tab-content active">
+        <div class="form-row">
+            <input type="date" id="start-date">
+            <div class="control-group">
+                <input type="date" id="end-date" disabled>
+                <select id="preset">
+                    <option value="">Виберіть проміжок</option>
+                    <option value="7">Тиждень</option>
+                    <option value="30">Місяць</option>
+                </select>
+                <select id="day-type">
+                    <option value="all">Всі дні</option>
+                    <option value="weekdays">Будні дні</option>
+                    <option value="weekends">Вихідні дні</option>
+                </select>
+                <select id="calc-type">
+                    <option value="days">Дні</option>
+                    <option value="hours">Години</option>
+                    <option value="minutes">Хвилини</option>
+                    <option value="seconds">Секунди</option>
+                </select>
+                <button onclick="calculate()">Розрахувати</button>
+            </div>
+        </div>
+        <div id="result"></div>
+        <div class="results">
+            <h3>Останні розрахунки</h3>
+            <table id="results-table">
+                <thead>
+                    <tr>
+                        <th>Початкова дата</th>
+                        <th>Кінцева дата</th>
+                        <th>Результат</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Тут будуть динамічно додаватися рядки таблиці -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="tab-content-1" class="tab-content">
+        <div class="form-row">
+            <input type="text" id="country" placeholder="Введіть країну">
+            <input type="number" id="year" placeholder="Введіть рік">
+            <button onclick="fetchHolidays()">Отримати свята</button>
+        </div>
+        <div id="holidays-list"></div>
+    </div>
+
+    <script src="/js/index.js"></script>
+</body>
+</html>
