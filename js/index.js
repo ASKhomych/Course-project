@@ -8,36 +8,73 @@ const resultDisplay = document.querySelector('#result');
 const resultsTableBody = document.querySelector('#results-table tbody');
 const calculateButton = document.querySelector('button');
 
+// Функція для перевірки, чи є день вихідним
+function isWeekend(day) {
+    return day === 0 || day === 6; // 0 - неділя, 6 - субота
+}
+
+// Обчислення кількості вихідних днів
+function getWeekendDays(start, end) {
+    let count = 0;
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        if (isWeekend(d.getDay())) {
+            count++;
+        }
+    }
+    return count;
+}
+
+// Обчислення кількості робочих днів
+function getWorkdays(start, end) {
+    let count = 0;
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        if (!isWeekend(d.getDay())) {
+            count++;
+        }
+    }
+    return count;
+}
+
 // Функція для обчислення різниці між датами
 function calculateDateDifference(startDate, endDate, unit, dayType) {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    let difference = (end - start) / 1000; // Різниця в секундах
+    let differenceInSeconds = (end - start) / 1000; // Різниця в секундах
 
-    if (unit === 'days' && dayType) {
-        let count = 0;
-        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-            const dayOfWeek = d.getDay();
-            if (dayType === 'weekdays' && (dayOfWeek !== 0 && dayOfWeek !== 6)) {
-                count++;
-            } else if (dayType === 'weekends' && (dayOfWeek === 0 || dayOfWeek === 6)) {
-                count++;
-            } else if (dayType === 'all') {
-                count++;
+    switch (unit) {
+        case 'days':
+            switch (dayType) {
+                case 'weekdays':
+                    return getWorkdays(start, end);
+                case 'weekends':
+                    return getWeekendDays(start, end);
+                case 'all':
+                    return Math.floor(differenceInSeconds / 86400); // Ділення секунд на кількість секунд в одному дні
+                default:
+                    throw new Error('Невірний тип дня');
             }
-        }
-        return count;
-    } else {
-        switch (unit) {
-            case 'hours':
-                return difference / 3600;
-            case 'minutes':
-                return difference / 60;
-            case 'seconds':
-                return difference;
-            default:
-                throw new Error('Невірна одиниця для обчислення різниці між датами');
-        }
+        case 'hours':
+        case 'minutes':
+        case 'seconds':
+            const secondsPerUnit = {
+                'hours': 3600,
+                'minutes': 60,
+                'seconds': 1
+            };
+            let totalSeconds = 0;
+            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                if ((dayType === 'weekdays' && !isWeekend(d.getDay())) ||
+                    (dayType === 'weekends' && isWeekend(d.getDay())) ||
+                    (dayType === 'all')) {
+                    const nextDay = new Date(d);
+                    nextDay.setDate(d.getDate() + 1);
+                    const dayEnd = nextDay > end ? end : nextDay;
+                    totalSeconds += (dayEnd - d) / 1000;
+                }
+            }
+            return Math.floor(totalSeconds / secondsPerUnit[unit]);
+        default:
+            throw new Error('Невірна одиниця для обчислення різниці між датами');
     }
 }
 
