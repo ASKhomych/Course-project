@@ -1,4 +1,3 @@
-
 const startDateInput = document.querySelector('#start-date');
 const endDateInput = document.querySelector('#end-date');
 const presetSelect = document.querySelector('#preset');
@@ -7,6 +6,8 @@ const calcDayTypeSelect = document.querySelector('#day-type');
 const resultDisplay = document.querySelector('#result');
 const resultsTableBody = document.querySelector('#results-table tbody');
 const calculateButton = document.querySelector('button');
+
+calculateButton.disabled = true; // Вимикаємо кнопку на початку
 
 // Функція для перевірки, чи є день вихідним
 function isWeekend(day) {
@@ -39,40 +40,33 @@ function getWorkdays(start, end) {
 function calculateDateDifference(startDate, endDate, unit, dayType) {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    let differenceInSeconds = (end - start) / 1000; // Різниця в секундах
+    let milliseconds = 0;
+
+    switch (dayType) {
+        case 'weekdays':
+            let workdays = getWorkdays(start, end);
+            milliseconds = workdays * 86400000; // 86400000 мілісекунд в одному дні
+            break;
+        case 'weekends':
+            let weekendDays = getWeekendDays(start, end);
+            milliseconds = weekendDays * 86400000;
+            break;
+        case 'all':
+            milliseconds = end - start;
+            break;
+        default:
+            throw new Error('Невірний тип дня');
+    }
 
     switch (unit) {
         case 'days':
-            switch (dayType) {
-                case 'weekdays':
-                    return getWorkdays(start, end);
-                case 'weekends':
-                    return getWeekendDays(start, end);
-                case 'all':
-                    return Math.floor(differenceInSeconds / 86400); // Ділення секунд на кількість секунд в одному дні
-                default:
-                    throw new Error('Невірний тип дня');
-            }
+            return Math.floor(milliseconds / 86400000);
         case 'hours':
+            return Math.floor(milliseconds / 3600000);
         case 'minutes':
+            return Math.floor(milliseconds / 60000);
         case 'seconds':
-            const secondsPerUnit = {
-                'hours': 3600,
-                'minutes': 60,
-                'seconds': 1
-            };
-            let totalSeconds = 0;
-            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-                if ((dayType === 'weekdays' && !isWeekend(d.getDay())) ||
-                    (dayType === 'weekends' && isWeekend(d.getDay())) ||
-                    (dayType === 'all')) {
-                    const nextDay = new Date(d);
-                    nextDay.setDate(d.getDate() + 1);
-                    const dayEnd = nextDay > end ? end : nextDay;
-                    totalSeconds += (dayEnd - d) / 1000;
-                }
-            }
-            return Math.floor(totalSeconds / secondsPerUnit[unit]);
+            return Math.floor(milliseconds / 1000);
         default:
             throw new Error('Невірна одиниця для обчислення різниці між датами');
     }
@@ -105,6 +99,7 @@ function saveResult(startDate, endDate, result) {
 function handleStartDateChange() {
     endDateInput.disabled = false;
     endDateInput.min = startDateInput.value;
+    updateButtonState(); // Оновлюємо стан кнопки
 }
 
 // Обробник зміни дати закінчення
@@ -112,13 +107,20 @@ function handleEndDateChange() {
     if (new Date(endDateInput.value) < new Date(startDateInput.value)) {
         endDateInput.value = startDateInput.value;
     }
+    updateButtonState(); // Оновлюємо стан кнопки
 }
 
+// Оновлення стану кнопки на основі валідності дат
+function updateButtonState() {
+    calculateButton.disabled = !startDateInput.value || !endDateInput.value || new Date(startDateInput.value) > new Date(endDateInput.value);
+}
+
+// Обробник натискання на кнопку "Розрахувати"
 function handleCalculateClick() {
     const startDate = startDateInput.value;
     const endDate = endDateInput.value;
     const unit = calcTypeSelect.value;
-    const dayType = calcDayTypeSelect.value; // Виправлено ім'я змінної для відповідності
+    const dayType = calcDayTypeSelect.value;
     const unitText = calcTypeSelect.options[calcTypeSelect.selectedIndex].text;
 
     let difference = calculateDateDifference(startDate, endDate, unit, dayType);
@@ -134,18 +136,21 @@ function handleCalculateClick() {
 function handlePresetChange() {
     const startDate = new Date(startDateInput.value);
     let presetDays = parseInt(presetSelect.value);
-    
+
     if (!isNaN(presetDays) && startDateInput.value) {
-        const endDate = new Date(startDate.getTime() + presetDays * 86400000); // Додавання днів до дати початку
-        endDateInput.valueAsDate = endDate; // Встановлення нової дати завершення
-        endDateInput.disabled = false; // Включення поля дати завершення, якщо воно було вимкнене
+        const endDate = new Date(startDate.getTime() + presetDays * 86400000);
+        endDateInput.valueAsDate = endDate;
+        endDateInput.disabled = false;
     }
+    updateButtonState(); // Оновлюємо стан кнопки
 }
 
-// Назначення обробників подій
 startDateInput.addEventListener('change', handleStartDateChange);
 endDateInput.addEventListener('change', handleEndDateChange);
 presetSelect.addEventListener('change', handlePresetChange);
 calculateButton.addEventListener('click', handleCalculateClick);
 
-loadResults(); // Завантажує результати з локального сховища при завантаженні сторінки
+loadResults(); // Завантажує результати при завантаженні сторінки
+
+
+// --------------------------------------------------------------------------------------------
