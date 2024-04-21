@@ -1,3 +1,5 @@
+import { fetchCountries, fetchHolidays } from '../js/api.js';
+
 const startDateInput = document.querySelector('#start-date');
 const endDateInput = document.querySelector('#end-date');
 const presetSelect = document.querySelector('#preset');
@@ -156,6 +158,8 @@ loadResults(); // Завантажує результати при завант�
 // --------------------------------------------------------------------------------------------
 // the second tab 
 
+let countryDataLoaded = false;
+
 function switchTab(tabIndex) {
     const tabs = document.querySelectorAll('.tab');
     const contents = document.querySelectorAll('.tab-content');
@@ -166,35 +170,20 @@ function switchTab(tabIndex) {
     tabs[tabIndex].classList.add('active');
     contents[tabIndex].classList.add('active');
 
-    // Завантажуємо країни при переключенні на вкладку "Свята"
     if (tabIndex === 1 && !countryDataLoaded) {
-        fetchCountries();
+        fetchCountries().then(data => {
+            updateCountryOptions(data.response.countries);
+            countryDataLoaded = true;
+        }).catch(error => {
+            console.error('Error fetching countries:', error);
+            displayError(error);
+        });
     }
 }
 
 document.querySelectorAll('.tab').forEach((tab, index) => {
     tab.addEventListener('click', () => switchTab(index));
 });
-
-let countryDataLoaded = false; // Флаг для перевірки завантаження даних
-
-async function fetchCountries() {
-    const apiKey = 'iFfulYZRwlaJcR7NURnw0Oe2ZG7OIyCR'; 
-    const url = `https://calendarific.com/api/v2/countries?api_key=${apiKey}`;
-
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        updateCountryOptions(data.response.countries);
-        countryDataLoaded = true;
-    } catch (error) {
-        console.error('Could not fetch countries:', error);
-        displayError(error); // Показати помилку на сторінці
-    }
-}
 
 function updateCountryOptions(countries) {
     const countryInput = document.getElementById('country');
@@ -205,57 +194,54 @@ function updateCountryOptions(countries) {
         option.textContent = country.country_name;
         countryInput.appendChild(option);
     });
-    document.getElementById('year').disabled = true; // Заблокувати вибір року до вибору країни
+    document.getElementById('year').disabled = true;
     updateYearOptions();
 }
 
 function updateYearOptions() {
     const yearInput = document.getElementById('year');
     const currentYear = new Date().getFullYear();
-    yearInput.innerHTML = ''; // Очистити існуючі опції
-
+    yearInput.innerHTML = '';
     for (let year = 2001; year <= 2049; year++) {
         const option = document.createElement('option');
         option.value = year;
         option.textContent = year;
         yearInput.appendChild(option);
         if (year === currentYear) {
-            option.selected = true; // Встановлення поточного року як вибраного
+            option.selected = true;
         }
     }
 }
 
 document.getElementById('country').addEventListener('change', function() {
     const yearInput = document.getElementById('year');
-    yearInput.disabled = !this.value; // вмикаємо або вимикаємо вибір року
-    fetchHolidays(); // автоматичний запит на свята, якщо рік вже обрано
+    const country = this.value;
+    const year = yearInput.value;
+
+    yearInput.disabled = !country;
+    if (country && year) {
+        fetchHolidays(country, year).then(data => {
+            displayHolidays(data.response.holidays);
+        }).catch(error => {
+            console.error('Failed to fetch holidays:', error);
+            displayError(error);
+        });
+    }
 });
-
-async function fetchHolidays() {
-    const apiKey = 'iFfulYZRwlaJcR7NURnw0Oe2ZG7OIyCR';
-    const country = document.getElementById('country').value;
-    const year = document.getElementById('year').value;
-    if (!country || !year) {
-        displayError({message: 'Ensure both country and year are selected'});
-        return;
-    }
-
-    const url = `https://calendarific.com/api/v2/holidays?api_key=${apiKey}&country=${country}&year=${year}`;
-
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        displayHolidays(data.response.holidays);
-    } catch (error) {
-        console.error('Failed to fetch holidays:', error);
-        displayError(error);
-    }
-}
 
 function displayHolidays(holidays) {
     const holidaysList = document.getElementById('holidays-list');
-    holidaysList.innerHTML = ''; 
+    holidaysList.innerHTML = '';
+    holidays.forEach(holiday => {
+        const item = document.createElement('li');
+        item.textContent = holiday.name;
+        holidaysList.appendChild(item);
+    });
+}
+
+function displayError(error) {
+    console.error(error);
+    const errorBox = document.getElementById('error-box');
+    errorBox.textContent = error.message;
+    errorBox.style.display = 'block';
 }
