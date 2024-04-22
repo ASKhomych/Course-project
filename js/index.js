@@ -168,7 +168,7 @@ const tabElements = document.querySelectorAll('.tab');
 // Початковий стан
 let countryDataLoaded = false;
 
-function switchTab(tabIndex) {
+async function switchTab(tabIndex) {
     const contents = document.querySelectorAll('.tab-content');
     tabElements.forEach(tab => tab.classList.remove('active'));
     contents.forEach(content => content.classList.remove('active'));
@@ -177,18 +177,24 @@ function switchTab(tabIndex) {
     contents[tabIndex].classList.add('active');
     
     if (tabIndex === 1 && !countryDataLoaded) {
-        loadCountryData();
+        try {
+            await loadCountryData();
+        } catch (error) {
+            console.error('Error fetching countries:', error);
+            displayError(error);
+        }
     }
 }
 
-function loadCountryData() {
-    fetchCountries().then(data => {
+async function loadCountryData() {
+    try {
+        const data = await fetchCountries();
         updateCountryOptions(data.response.countries);
         countryDataLoaded = true;
-    }).catch(error => {
-        console.error('Помилка вибору країн:', error);
-        displayError(error);
-    });
+    } catch (error) {
+        console.error('Не вдалося завантажити дані країни:', error);
+        displayError('Не вдалося завантажити країни. Будь-ласка спробуйте пізніше.');
+    }
 }
 
 function updateCountryOptions(countries) {
@@ -217,19 +223,20 @@ function updateYearOptions() {
     }
 }
 
-function handleCountryChange() {
+async function handleCountryChange() {
     const yearInput = yearSelect;
     const country = countrySelect.value;
     const year = yearInput.value;
     
     yearInput.disabled = !country;
     if (country && year) {
-        fetchHolidays(country, year).then(data => {
+        try {
+            const data = await fetchHolidays(country, year);
             displayHolidays(data.response.holidays);
-        }).catch(error => {
+        } catch (error) {
             console.error('Не вдалося отримати свята:', error);
             displayError(error);
-        });
+        }
     }
 }
 
@@ -242,9 +249,9 @@ function displayHolidays(holidays) {
     });
 }
 
-function displayError(error) {
-    console.error(error);
-    errorBox.textContent = error.message;
+function displayError(message) {
+    console.error(message);
+    errorBox.textContent = message;
     errorBox.style.display = 'block';
 }
 
