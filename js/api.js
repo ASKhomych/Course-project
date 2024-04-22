@@ -3,15 +3,11 @@ const API_URL = 'https://calendarific.com/api/v2';
 
 export async function fetchCountries() {
     const url = `${API_URL}/countries?api_key=${API_KEY}`;
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error('Failed to fetch countries from API');
-        }
-        return await response.json();
-    } catch (error) {
-        throw new Error('Network response was not ok: ' + error.message);
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch countries from API: ${response.status} ${response.statusText}`);
     }
+    return await response.json();
 }
 
 export async function fetchHolidays(country, year) {

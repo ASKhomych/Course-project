@@ -197,6 +197,7 @@ async function loadCountryData() {
     }
 }
 
+
 function updateCountryOptions(countries) {
     countrySelect.innerHTML = '<option value="">Виберіть країну</option>';
     countries.forEach(country => {
