@@ -8,8 +8,8 @@
 </head>
 <body>
     <div class="tabs">
-        <div class="tab active" onclick="switchTab(0)">Розрахунок дат</div>
-        <div class="tab" onclick="switchTab(1)">Свята</div>
+        <div class="tab active" onclick>Розрахунок дат</div>
+        <div class="tab" onclick>Свята</div>
     </div>
 
     <div id="tab-content-0" class="tab-content active">
@@ -33,7 +33,7 @@
                     <option value="minutes">Хвилини</option>
                     <option value="seconds">Секунди</option>
                 </select>
-                <button onclick="calculate()">Розрахувати</button>
+                <button onclick>Розрахувати</button>
             </div>
         </div>
         <div id="result"></div>
@@ -56,14 +56,14 @@
 
     <div id="tab-content-1" class="tab-content">
         <div class="form-row">
-            <select id="country" onchange="enableYearSelection()">
+            <select id="country" onchange>
                 <option value="">Введіть країну</option>
                 <!-- Список країн буде доданий динамічно -->
             </select>
             <select id="year" disabled>
                 <!-- Опції років будуть додані динамічно -->
             </select>
-            <button onclick="fetchHolidays()">Отримати свята</button>
+            <button onclick>Отримати свята</button>
         </div>
         <div id="holidays-list"></div>
     </div>
