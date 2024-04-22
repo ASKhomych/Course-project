@@ -1,3 +1,5 @@
+import { fetchCountries, fetchHolidays } from '../js/api.js';
+
 const startDateInput = document.querySelector('#start-date');
 const endDateInput = document.querySelector('#end-date');
 const presetSelect = document.querySelector('#preset');
@@ -154,3 +156,108 @@ loadResults(); // Завантажує результати при завант�
 
 
 // --------------------------------------------------------------------------------------------
+// the second tab 
+
+// DOM Elements
+const countrySelect = document.getElementById('country');
+const yearSelect = document.getElementById('year');
+const holidaysList = document.getElementById('holidays-list');
+const errorBox = document.getElementById('error-box');
+const tabElements = document.querySelectorAll('.tab');
+
+// Початковий стан
+let countryDataLoaded = false;
+
+async function switchTab(tabIndex) {
+    const contents = document.querySelectorAll('.tab-content');
+    tabElements.forEach(tab => tab.classList.remove('active'));
+    contents.forEach(content => content.classList.remove('active'));
+    
+    tabElements[tabIndex].classList.add('active');
+    contents[tabIndex].classList.add('active');
+    
+    if (tabIndex === 1 && !countryDataLoaded) {
+        try {
+            await loadCountryData();
+        } catch (error) {
+            console.error('Error fetching countries:', error);
+            displayError(error);
+        }
+    }
+}
+
+async function loadCountryData() {
+    try {
+        const data = await fetchCountries();
+        updateCountryOptions(data.response.countries);
+        countryDataLoaded = true;
+    } catch (error) {
+        console.error('Не вдалося завантажити дані країни:', error);
+        displayError('Не вдалося завантажити країни. Будь-ласка спробуйте пізніше.');
+    }
+}
+
+
+function updateCountryOptions(countries) {
+    countrySelect.innerHTML = '<option value="">Виберіть країну</option>';
+    countries.forEach(country => {
+        const option = document.createElement('option');
+        option.value = country.iso2;
+        option.textContent = country.country_name;
+        countrySelect.appendChild(option);
+    });
+    yearSelect.disabled = false;
+    updateYearOptions();
+}
+
+function updateYearOptions() {
+    const currentYear = new Date().getFullYear();
+    yearSelect.innerHTML = '';
+    for (let year = 2001; year <= 2049; year++) {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        yearSelect.appendChild(option);
+        if (year === currentYear) {
+            option.selected = true;
+        }
+    }
+}
+
+async function handleCountryChange() {
+    const yearInput = yearSelect;
+    const country = countrySelect.value;
+    const year = yearInput.value;
+    
+    yearInput.disabled = !country;
+    if (country && year) {
+        try {
+            const data = await fetchHolidays(country, year);
+            displayHolidays(data.response.holidays);
+        } catch (error) {
+            console.error('Не вдалося отримати свята:', error);
+            displayError(error);
+        }
+    }
+}
+
+function displayHolidays(holidays) {
+    holidaysList.innerHTML = '';
+    holidays.forEach(holiday => {
+        const item = document.createElement('li');
+        item.textContent = holiday.name;
+        holidaysList.appendChild(item);
+    });
+}
+
+function displayError(message) {
+    console.error(message);
+    errorBox.textContent = message;
+    errorBox.style.display = 'block';
+}
+
+// Слухачі подій
+countrySelect.addEventListener('change', handleCountryChange);
+tabElements.forEach((tab, index) => {
+    tab.addEventListener('click', () => switchTab(index));
+});

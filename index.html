@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-    <link rel="stylesheet" href="../style/style.css">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Date and Holiday Calculator</title>
+    <link rel="stylesheet" href="../style/style.css">
 </head>
 <body>
     <div class="tabs">
@@ -56,13 +56,18 @@
 
     <div id="tab-content-1" class="tab-content">
         <div class="form-row">
-            <input type="text" id="country" placeholder="Введіть країну">
-            <input type="number" id="year" placeholder="Введіть рік">
+            <select id="country" onchange="enableYearSelection()">
+                <option value="">Введіть країну</option>
+                <!-- Список країн буде доданий динамічно -->
+            </select>
+            <select id="year" disabled>
+                <!-- Опції років будуть додані динамічно -->
+            </select>
             <button onclick="fetchHolidays()">Отримати свята</button>
         </div>
         <div id="holidays-list"></div>
     </div>
 
-    <script src="/js/index.js"></script>
+    <script src="/js/index.js" type="module"></script>
 </body>
 </html>
