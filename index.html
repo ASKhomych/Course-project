@@ -56,16 +56,19 @@
 
     <div id="tab-content-1" class="tab-content">
         <div class="form-row">
-            <select id="country" onchange>
+            <select id="country">
                 <option value="">Введіть країну</option>
                 <!-- Список країн буде доданий динамічно -->
             </select>
             <select id="year" disabled>
                 <!-- Опції років будуть додані динамічно -->
             </select>
-            <button onclick>Отримати свята</button>
+            <button id="fetchHolidaysButton" disabled>Отримати свята</button>
         </div>
         <div id="holidays-list"></div>
+        <div id="error-box" style="display: none;"> <!-- Ensure this is styled for visibility when displayed -->
+            <!-- Error messages will appear here -->
+        </div>
     </div>
 
     <script src="/js/index.js" type="module"></script>
