@@ -158,15 +158,17 @@ loadResults(); // Завантажує результати при завант�
 // --------------------------------------------------------------------------------------------
 // the second tab 
 
-// DOM elements
+// DOM елементи
 const countrySelect = document.getElementById('country');
 const yearSelect = document.getElementById('year');
 const errorBox = document.getElementById('error-box');
 const tabElements = document.querySelectorAll('.tab');
 const fetchHolidaysButton = document.getElementById('fetchHolidaysButton');
+const updateIcon =  document.getElementById('sort-icon');
 
 // глобальні змінні
 let countryDataLoaded = false;
+let sortAscending = true;
 
 async function switchTab(tabIndex) {
     const contents = document.querySelectorAll('.tab-content');
@@ -189,7 +191,6 @@ async function switchTab(tabIndex) {
 async function loadCountryData() {
     try {
         const data = await fetchCountries();
-        console.log(data); 
         countryDataLoaded = true;
         if (!data.response.countries) {
             throw new Error("Немає даних про країни"); 
@@ -263,13 +264,20 @@ function displayHolidays(holidays) {
     table.style.display = 'table'; // Показуємо таблицю з даними
 }
 
-function sortHolidays(holidays, ascending) {
+function sortHolidays(holidays) {
     holidays.sort((a, b) => {
         let dateA = new Date(a.date.iso);
         let dateB = new Date(b.date.iso);
-        return ascending ? dateA - dateB : dateB - dateA;
+        return sortAscending ? dateA - dateB : dateB - dateA;
     });
-    displayHolidays(holidays); 
+    displayHolidays(holidays);
+    updateSortIcon(); // Оновлюємо іконку сортування
+    sortAscending = !sortAscending; // Перемикання напряму сортування
+}
+
+function updateSortIcon() {
+    const sortIcon = document.getElementById('sort-icon');
+    sortIcon.textContent = sortAscending ? '▼' : '▲'; // Змінюємо іконку в залежності від напрямку сортування
 }
 
 function formatDate(dateString) {
@@ -297,3 +305,12 @@ tabElements.forEach((tab, index) => {
     tab.addEventListener('click', () => switchTab(index));
 });
 fetchHolidaysButton.addEventListener('click', fetchHolidaysForSelectedCountryAndYear);
+updateIcon.addEventListener('click', () => {
+    const holidays = Array.from(document.getElementById('holidays-body').children).map(row => {
+        return {
+            date: { iso: row.cells[0].textContent }, // формат дати вже правильний
+            name: row.cells[1].textContent
+        };
+    });
+    sortHolidays(holidays); // Сортування з новим напрямом
+});
