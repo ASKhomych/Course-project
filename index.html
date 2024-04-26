@@ -65,9 +65,19 @@
             </select>
             <button id="fetchHolidaysButton" disabled>Отримати свята</button>
         </div>
+        <table id="holidays-table" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Дата <span id="sort-icon">▲</span></th>
+                    <th>Назва свята</th>
+                </tr>
+            </thead>
+            <tbody id="holidays-body">
+                <!-- Дані будуть додані динамічно -->
+            </tbody>
+        </table>
         <div id="holidays-list"></div>
-        <div id="error-box" style="display: none;"> 
-        </div>
+        <div id="error-box" style="display: none;"></div>
     </div>
 
     <script src="js/index.js" type="module"></script>
