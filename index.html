@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Date and Holiday Calculator</title>
-    <link rel="stylesheet" href="/style/style.css">
+    <link rel="stylesheet" href="style/style.css">
+    <link rel="icon" type="image/png" href="icon/favicon.png">
 </head>
 <body>
     <div class="tabs">
@@ -33,7 +34,7 @@
                     <option value="minutes">Хвилини</option>
                     <option value="seconds">Секунди</option>
                 </select>
-                <button onclick>Розрахувати</button>
+                <button disabled onclick>Розрахувати</button>
             </div>
         </div>
         <div id="result"></div>
@@ -56,18 +57,30 @@
 
     <div id="tab-content-1" class="tab-content">
         <div class="form-row">
-            <select id="country" onchange>
+            <select id="country">
                 <option value="">Введіть країну</option>
                 <!-- Список країн буде доданий динамічно -->
             </select>
             <select id="year" disabled>
                 <!-- Опції років будуть додані динамічно -->
             </select>
-            <button onclick>Отримати свята</button>
+            <button id="fetchHolidaysButton" disabled>Отримати свята</button>
         </div>
+        <table id="holidays-table" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Дата <span id="sort-icon">▲</span></th>
+                    <th>Назва свята</th>
+                </tr>
+            </thead>
+            <tbody id="holidays-body">
+                <!-- Дані будуть додані динамічно -->
+            </tbody>
+        </table>
         <div id="holidays-list"></div>
+        <div id="error-box" style="display: none;"></div>
     </div>
 
-    <script src="/js/index.js" type="module"></script>
+    <script src="js/index.js" type="module"></script>
 </body>
 </html>

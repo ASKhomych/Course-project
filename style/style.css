@@ -1,3 +1,4 @@
+/* Загальні стилі */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f4f7fa;
@@ -7,6 +8,7 @@ body {
     padding: 10px;
 }
 
+/* Стилі вкладок */
 .tabs {
     display: flex;
     justify-content: center;
@@ -33,6 +35,7 @@ body {
     background-color: #f0f0f0;
 }
 
+/* Стилі вмісту вкладок */
 .tab-content {
     display: none;
     background-color: #ffffff;
@@ -45,6 +48,7 @@ body {
     display: block;
 }
 
+/* Стилі форм */
 .form-row {
     display: flex;
     align-items: center;
@@ -54,7 +58,7 @@ body {
 
 input[type="date"] {
     padding: 8px;
-    flex: 0 0 auto; /* Fixed width */
+    flex: 0 0 auto;
     width: 150px;
     border-radius: 4px;
     border: 1px solid #ccc;
@@ -95,6 +99,7 @@ button:hover {
     background-color: #0056b3;
 }
 
+/* Стилі таблиць */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -110,4 +115,19 @@ th, td {
 
 th {
     background-color: #f0f0f0;
+}
+
+#holidays-table {
+    display: none; 
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+#holidays-table.show {
+    display: table; 
+}
+
+th {
+    cursor: pointer;
 }
